@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Pazzesco!</title>
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+            background: linear-gradient(135deg, #ff00cc, #3333ff, #00ffcc, #ffcc00, #ff0066);
+            background-size: 400% 400%;
+            animation: gradientBG 10s ease-in-out infinite;
+        }
+        @keyframes gradientBG {
+            0% {background-position: 0% 50%;}
+            50% {background-position: 100% 50%;}
+            100% {background-position: 0% 50%;}
+        }
+        .crazy {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%) rotate(-10deg) scale(1.2);
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            font-size: 4vw;
+            color: #fff;
+            text-shadow: 0 0 20px #ff00cc, 0 0 40px #00ffcc;
+            animation: shake 0.5s infinite alternate;
+            letter-spacing: 0.2em;
+            user-select: none;
+        }
+        @keyframes shake {
+            0% { transform: translate(-50%, -50%) rotate(-10deg) scale(1.2);}
+            100% { transform: translate(-50%, -50%) rotate(10deg) scale(1.25);}
+        }
+        canvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            pointer-events: none;
+            z-index: 0;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="confetti"></canvas>
+    <div class="crazy">bravo ora esci di casa 
+        e vieni con me
+    </div>
+    <script>
+        // Confetti animation
+        const canvas = document.getElementById('confetti');
+        const ctx = canvas.getContext('2d');
+        let W = window.innerWidth, H = window.innerHeight;
+        canvas.width = W; canvas.height = H;
+
+        const confettiColors = ['#ff00cc', '#3333ff', '#00ffcc', '#ffcc00', '#ff0066', '#fff'];
+        const confettiPieces = Array.from({length: 150}, () => ({
+            x: Math.random() * W,
+            y: Math.random() * H,
+            r: Math.random() * 8 + 4,
+            d: Math.random() * 50 + 10,
+            color: confettiColors[Math.floor(Math.random() * confettiColors.length)],
+            tilt: Math.random() * 10 - 10,
+            tiltAngle: 0,
+            tiltAngleIncremental: (Math.random() * 0.07) + .05
+        }));
+
+        function drawConfetti() {
+            ctx.clearRect(0, 0, W, H);
+            confettiPieces.forEach(c => {
+                ctx.beginPath();
+                ctx.lineWidth = c.r;
+                ctx.strokeStyle = c.color;
+                ctx.moveTo(c.x + c.tilt + (c.r / 3), c.y);
+                ctx.lineTo(c.x + c.tilt, c.y + c.tilt + c.d / 3);
+                ctx.stroke();
+            });
+            updateConfetti();
+        }
+
+        function updateConfetti() {
+            confettiPieces.forEach(c => {
+                c.y += (Math.cos(c.d) + 3 + c.r / 2) / 2;
+                c.x += Math.sin(0.01 * c.d);
+                c.tiltAngle += c.tiltAngleIncremental;
+                c.tilt = Math.sin(c.tiltAngle) * 15;
+
+                if (c.y > H) {
+                    c.x = Math.random() * W;
+                    c.y = -10;
+                }
+            });
+        }
+
+        function animate() {
+            drawConfetti();
+            requestAnimationFrame(animate);
+        }
+
+        window.addEventListener('resize', () => {
+            W = window.innerWidth;
+            H = window.innerHeight;
+            canvas.width = W;
+            canvas.height = H;
+        });
+
+        animate();
+    </script>
+</body>
+</html>
